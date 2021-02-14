@@ -1,0 +1,142 @@
+----------------------------------------------------------------------------------------------------
+CRUD
+   in scalatra a route is an http method (GET, PUT, POST, or DELETE) paired with a URL matching pattern.
+   R -  get(path){ // path = route matcher
+    // action inside the route
+    // this action will return the requested data
+   }
+   C - post(path){
+   // if you want to submit or create some info on server
+   }
+   U - put(path){
+   // update the data on the server
+   }
+   D - delete(path){
+   // delete some data from the server
+   }
+
+   named parameters
+   params("name") // to extract the name
+   params("splat") //  to extract the wild card parameters
+
+Creating custom type of data structure and type safe param extraction from the request
+    params.getAs[Int]("age") -> [type]("key-name") -> will provide you with the option(data)
+    params.getAs[Date]("publishAt"-> "MM/dd/YYYY") -> date param
+
+custom type
+    case class Name(firstName: String, lastName: String)
+
+    def toName(str: String) = str.
+      split(',').
+      map(_.trim) match {
+          case Array(lastName, firstName) =>
+          Name(lastName, firstName)
+    }
+
+    val stringToName: TypeConverter[Name] = safe { str =>
+      toName(str)
+    }
+
+    params.getAs[Name] ("name")(stringToName).
+
+request.getHeader("Accept").split(",").contains("text/html")
+
+
+Route conditions can also be there
+like
+get("/path", request.getRemoteUser == "admin"){
+
+}
+----------------------------------------------------------------------------------------------------
+FileUploadSupport to upload the files
+    Name                                   Description
+
+    size: Long	                           Size of the file
+    name: String	                       Name of the file
+    fieldName: String	                   Name of the form field
+    contentType: Option[String]	           Content type of the file
+    charset: Option[String]	               Charset of the file
+    write(file: java.io.File)	           Writes the data to the filesystem via a java.io.File
+    write(fileName: String)	               Writes the data to the filesystem
+    get: Array[Byte]	                   Returns the data as a byte array
+    getInputStream: java.io.InputStream	   Returns an InputStream to the data
+----------------------------------------------------------------------------------------------------
+Other clients and frameworks often indicate the same thing by adding a _method=put or
+_method=delete parameter to a POST body.
+
+Parameter handling
+Incoming HTTP request parameters become available to your actions through two methods: multiParams and params.
+
+As an example, let’s hit a URL with a GET like this:
+
+/articles/52?foo=uno&bar=dos&baz=three&foo=anotherfoo
+ Look closely: there are two “foo” keys in there.
+
+Assuming there’s a matching route at /articles/:id, we get the following results inside the action:
+----------------------------------------------------------------------------------------------------
+get("/articles/:id") {
+  params("id") // => "52"
+  params("foo") // => "uno" (discarding the second "foo" parameter value)
+  params("unknown") // => generates a NoSuchElementException
+  params.get("unknown") // => None - this is what Scala does with unknown keys in a Map
+
+  multiParams("id") // => Seq("52")
+  multiParams("foo") // => Seq("uno", "anotherfoo")
+  multiParams("unknown") // => an empty Seq
+}
+
+----------------------------------------------------------------------------------------------------
+    before(){
+
+    }
+
+    after(){
+
+    }
+    these methods will run before and after each and every route gets processed.
+    you can execute the db connection or any other connection request.
+
+----------------------------------------------------------------------------------------------------
+redirecting the requests
+    get("/"){
+        redirect("/home")
+    }
+
+Halting
+    To immediately stop a request within a filter or route:
+    halt()
+
+    syntax: halt(status = 301, headers = Map("Location" -> "http://example.org/"))
+
+Passing
+    A route can punt processing to the next matching route using pass(). Remember, unlike Sinatra, routes are matched from the bottom up.
+
+    get("/guess/*") {
+      "You missed!"
+    }
+
+    get("/guess/:who") {
+      params("who") match {
+        case "Frank" => "You got me!"
+        case _ => pass()
+      }
+    }
+----------------------------------------------------------------------------------------------------
+Not Found (404)
+    The notFound handler allows you to execute code when there is no matching route for the current request’s URL.
+
+    The default behavior is:
+
+    notFound {
+      <h1>Not found. Bummer.</h1>
+    }
+
+    ScalatraServlet: sends a 404 response
+
+
+FAQ
+    If you’d like foo/bar and foo/bar/ to be equivalent, simply append /? to your URL matching pattern. For example:
+
+    get("foo/bar/?") {
+      //...
+    }

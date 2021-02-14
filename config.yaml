@@ -1,0 +1,17 @@
+
+Environment: "Development"
+
+Host: "localhost"
+Port: 3306
+UserName: "root"
+Password: "root"
+
+DataBaseName: "employee"
+Tables:
+  LoginTableName: "login"
+  PersonalDataTableName: "personalrecord"
+  CompanyRecordTableName: "companyrecord"
+  AttendanceTableName: "attendancesystem"
+
+Drivers :
+  SQLDriver: "com.mysql.jdbc.Driver"
