@@ -12,6 +12,7 @@ object RequestHelpers{
   }
 
   def getEmployeeDetailsFromString(empDetails: String): EmployeeDetails ={
+    //TODO: Add salary details to the EmployeeDetails, by extracting the params and add it here
     val details = empDetails.split(',')
     details.map(item => item.trim()) match {
       case Array(role, designation, managerName) => EmployeeDetails(role, designation, managerName)
