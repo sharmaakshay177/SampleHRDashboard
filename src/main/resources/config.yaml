@@ -13,5 +13,10 @@ Tables:
   CompanyRecordTableName: "companyrecord"
   AttendanceTableName: "attendancesystem"
 
-Drivers :
+Drivers:
   SQLDriver: "com.mysql.jdbc.Driver"
+
+ListVal:
+  - 1
+  - 2
+  - 3

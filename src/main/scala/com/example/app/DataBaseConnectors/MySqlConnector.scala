@@ -1,17 +1,21 @@
 package com.example.app.DataBaseConnectors
 
 import java.sql.{Connection, DriverManager, Statement}
-
 import org.slf4j.{Logger, LoggerFactory}
+
+import com.example.app.Controllers.GlobalHelpers
 
 class MySqlConnector(Host: String, Port: Int) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
-
-  private val Driver: String = "com.mysql.jdbc.Driver"
   //TODO - Move it to config file and extract from there
-  private val userName: String = "root"
-  private val password: String = "root"
+  private val config = GlobalHelpers.getConfig
+  private val AllDrivers = config.get("Drivers") match {
+    case Some(value) => value.asInstanceOf[Map[String, Any]]
+  }
+  private val Driver = AllDrivers.getOrElse("SQLDriver", "None Found").toString
+  private val userName = config.getOrElse("UserName", "None").toString
+  private val password = config.getOrElse("Password", "None").toString
 
   def createUrl(dataBaseName: String): String ={
     logger.info(s"creating Url for provided host:$Host, port:$Port and dataBase:$dataBaseName")

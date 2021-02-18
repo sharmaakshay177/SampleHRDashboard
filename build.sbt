@@ -15,11 +15,14 @@ lazy val hello = (project in file("."))
       "org.eclipse.jetty" % "jetty-webapp" % "9.4.35.v20201120" % "container",
       "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided",
       "org.scalatra" %% "scalatra-json" % "2.7.1",
+      "mysql" % "mysql-connector-java" % "5.1.16",
       "org.json4s" %% "json4s-jackson" % "3.6.10",
-      "org.scalatra" %% "scalatra-swagger" % "2.7.1"
+      "org.scalatra" %% "scalatra-swagger" % "2.7.1",
+      "org.yaml" % "snakeyaml" % "1.27",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.12.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.1"
     ),
-    libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.16"
-
   )
 
 enablePlugins(SbtTwirl)
