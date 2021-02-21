@@ -133,7 +133,6 @@ object RequestHandler {
     connection.close()
     var response: String = "No able to add employee"
 
-    //TODO: Optional Add conditions to return comments according, if any of the queries fail to enter data
     if (resultLogin == 1 && resultAddEmployee == 1 && resultAddEmployeeToCompany == 1 && resultAddEmployeeToAttendance == 1){
       response = "Employee added successfully"
     }

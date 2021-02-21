@@ -8,7 +8,6 @@ import com.example.app.Controllers.GlobalHelpers
 class MySqlConnector(Host: String, Port: Int) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
-  //TODO - Move it to config file and extract from there
   private val config = GlobalHelpers.getConfig
   private val AllDrivers = config.get("Drivers") match {
     case Some(value) => value.asInstanceOf[Map[String, Any]]
