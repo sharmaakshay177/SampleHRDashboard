@@ -21,7 +21,9 @@ lazy val hello = (project in file("."))
       "org.yaml" % "snakeyaml" % "1.27",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.1",
       "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.12.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.1"
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.1",
+      "org.scalamock" %% "scalamock" % "5.1.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.4" % Test
     ),
   )
 
