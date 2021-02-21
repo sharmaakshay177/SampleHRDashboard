@@ -1,7 +1,6 @@
 package com.example.app.Controllers
 
 import org.slf4j.{Logger, LoggerFactory}
-import org.yaml.snakeyaml.Yaml
 
 import scala.annotation.tailrec
 
@@ -25,7 +24,7 @@ object CreateQueries {
     @tailrec
     def createWhereConditions(h: (String, Any), t: Map[String, Any], acc: String): String =
       if(t.isEmpty) acc + s"""${h._1}="${h._2}""""
-      else createWhereConditions(t.head, t.tail, acc + s""" ${h._1}="${h._2}" AND """)
+      else createWhereConditions(t.head, t.tail, acc + s"""${h._1}="${h._2}" AND """)
 
     val selectionColumns = {
       if(selectingColumnNames.isEmpty) "*"

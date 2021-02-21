@@ -6,13 +6,7 @@ import org.json4s.jackson.Serialization.write
 import com.example.app.DataBaseConnectors.MySqlConnector
 import com.example.app.DataBaseConnectors.DataHandler
 import org.slf4j.{Logger, LoggerFactory}
-
-
-case class LoginResponse(isCredentialsGood: Boolean, comments: String)
-case class EmployeeName(FirstName: String, LastName: String, Age: Int)
-case class EmployeeDetails(Role: String, Designation: String, ManagerName: String, Salary: Double = 0.0)
-case class AttendanceDetails(EmpID: Int, isPresent: Boolean, date: String)
-
+import com.example.app.Models.LoginResponse
 
 case class Recipe(title: String,
                   details: RecipeDetails,
@@ -27,13 +21,18 @@ case class IngredientLine(label: String, quantity: String)
 
 object RequestHandler {
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
-
   protected implicit val jsonFormats: Formats = DefaultFormats
-  protected val Host: String = "localhost"
-  protected val Port: Int = 3306
-  protected val DataBaseName: String = "employee"
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+  private val config = GlobalHelpers.getConfig
+
+  protected val Host: String = config.getOrElse("Host", "Not Found").toString
+  protected val Port: Int = config.getOrElse("Port", "Not Found").toString.toInt
+  protected val DataBaseName: String = config.getOrElse("DataBaseName", "Not Found").toString
   protected val sqlConnector = new MySqlConnector(Host, Port)
+
+  private val Tables: Map[String, Any] = config.get("Tables") match {
+    case Some(value) => value.asInstanceOf[Map[String, Any]]
+  }
 
   def checkLoginCredentials(userName: String, password: String): String ={
     val url: String = sqlConnector.createUrl(DataBaseName)
@@ -41,9 +40,11 @@ object RequestHandler {
       case Left(conn) => conn
       case _ =>  return "Bummer: SQl Server Not Up"
     }
-    //TODO: Remove the table name from here and use it from the config file.
+
     val statement = sqlConnector.createStatement(connection)
-    val query = CreateQueries.createQueryForLogin("login", userName, password)
+    val query = CreateQueries.createQueryForLogin(Tables.getOrElse("LoginTableName","Not Found").toString,
+                                                  userName,
+                                                  password)
     val result = DataHandler.executeQueryOnDataBase(statement, query)
 
     var credentialCheck: Boolean = false
@@ -89,11 +90,6 @@ object RequestHandler {
      val personal = RequestHelpers.getEmployeePersonalDetailsFromString(name)
      val employeeDetail = RequestHelpers.getEmployeeDetailsFromString(employeeDetailsString)
 
-
-    //TODO: need to add the new employee in login
-    //TODO: need to add the new employee to personal record
-    //TODO: need to add the new employee in companyRecord
-    //TODO: need to add the new employee in attendanceSystem to update the attendance
     val url: String = sqlConnector.createUrl(DataBaseName)
     val connection = sqlConnector.createConnection(url) match {
       case Left(conn) => conn
@@ -102,20 +98,19 @@ object RequestHandler {
     val statement = sqlConnector.createStatement(connection)
 
     //creating Queries
-    //TODO: remove the tableNames from hardcode to yaml file
-    val queryToAddNewEmployeeToLogin = CreateQueries.createQueryToAddNewUserToLoginDataTable(tableName = "login",
+    val queryToAddNewEmployeeToLogin = CreateQueries.createQueryToAddNewUserToLoginDataTable(Tables.getOrElse("LoginTableName","Not Found").toString,
                                                                                               empID,
                                                                                               userName = "",
                                                                                               password = "",
                                                                                               employeeDetail.Role)
 
-    val queryToAddNewEmployeeToPersonalRecord = CreateQueries.createQueryForAddingNewUserToPersonalDataTable(tableName = "personalrecord",
+    val queryToAddNewEmployeeToPersonalRecord = CreateQueries.createQueryForAddingNewUserToPersonalDataTable(Tables.getOrElse("PersonalDataTableName","Not Found").toString,
                                                                                                               empID,
                                                                                                               personal.FirstName,
                                                                                                               personal.LastName,
                                                                                                               personal.Age)
 
-    val queryToAddNewEmployeeToCompanyRecord = CreateQueries.createQueryToAddNewUserToCompanyRecordDataTable(tableName = "companyrecord",
+    val queryToAddNewEmployeeToCompanyRecord = CreateQueries.createQueryToAddNewUserToCompanyRecordDataTable(Tables.getOrElse("CompanyRecordTableName","Not Found").toString,
                                                                                                               empID,
                                                                                                               personal.FirstName,
                                                                                                               personal.LastName,
@@ -125,7 +120,7 @@ object RequestHandler {
                                                                                                               employeeDetail.Salary)
 
     val initialAttendanceJson = getTheMonthDateJson()
-    val queryToAddEmployeeToAttendanceSystem = CreateQueries.crateQueryToAddNewUserToAttendanceSystem(tableName = "attendancesystem",
+    val queryToAddEmployeeToAttendanceSystem = CreateQueries.crateQueryToAddNewUserToAttendanceSystem(Tables.getOrElse("AttendanceTableName","Not Found").toString,
                                                                                                       empID,
                                                                                                       employeeDetail.ManagerName,
                                                                                                       initialAttendanceJson)
@@ -138,7 +133,7 @@ object RequestHandler {
     connection.close()
     var response: String = "No able to add employee"
 
-    //TODO: Add conditions to return comments according, if any of the queries fail to enter data
+    //TODO: Optional Add conditions to return comments according, if any of the queries fail to enter data
     if (resultLogin == 1 && resultAddEmployee == 1 && resultAddEmployeeToCompany == 1 && resultAddEmployeeToAttendance == 1){
       response = "Employee added successfully"
     }
@@ -161,8 +156,8 @@ object RequestHandler {
     // update the value for the date
     // add the json back to the user record.
     val attendanceDetailsObject = RequestHelpers.convertStringToAttendanceDetails(attendanceDetails)
-    //TODO: Remove the table Name/ Use table name from config.yaml file
-    val queryToGetEmployeeJson = CreateQueries.queryToRetrieveUserJsonFromAttendanceRecord(tableName = "attendancesystem",
+
+    val queryToGetEmployeeJson = CreateQueries.queryToRetrieveUserJsonFromAttendanceRecord(Tables.getOrElse("AttendanceTableName","Not Found").toString,
                                                                                            attendanceDetailsObject.EmpID)
     logger.info(s"Result Set Acquired after the query")
     val resultSet = DataHandler.executeQueryOnDataBase(statement, queryToGetEmployeeJson)
@@ -172,7 +167,7 @@ object RequestHandler {
                                            attendanceDetailsObject.date,
                                            attendanceDetailsObject.isPresent,
                                            resultSet)
-    val updateJsonQuery = CreateQueries.queryToUpdateAttendanceJson(tableName = "attendancesystem",
+    val updateJsonQuery = CreateQueries.queryToUpdateAttendanceJson(Tables.getOrElse("AttendanceTableName","Not Found").toString,
                                                                     attendanceDetailsObject.EmpID,
                                                                     jsonToWrite)
     logger.info(s"Updating the Json")
@@ -194,7 +189,7 @@ object RequestHandler {
     }
     val statement = sqlConnector.createStatement(connection)
 
-    val queryToGetEmployeeJson = CreateQueries.queryToRetrieveUserJsonFromAttendanceRecord(tableName = "attendancesystem",
+    val queryToGetEmployeeJson = CreateQueries.queryToRetrieveUserJsonFromAttendanceRecord(Tables.getOrElse("AttendanceTableName","Not Found").toString,
                                                                                            empId = empId)
     val resultSet = DataHandler.executeQueryOnDataBase(statement, queryToGetEmployeeJson)
     logger.info(s"Result Set Acquired after the query")
@@ -202,7 +197,7 @@ object RequestHandler {
     val newJsonToWrite = UtilityHelper.addEmployeeLeavesToAttendanceJson(startDate,
                                                                          endDate,
                                                                          resultSet)
-    val queryToWriteJson = CreateQueries.queryToUpdateAttendanceJson(tableName = "attendancesystem",
+    val queryToWriteJson = CreateQueries.queryToUpdateAttendanceJson(Tables.getOrElse("AttendanceTableName","Not Found").toString,
                                                                      empId,
                                                                      newJsonToWrite)
 

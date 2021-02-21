@@ -1,0 +1,7 @@
+
+Key: "value1"
+Key2: "value2"
+
+NestedKey:
+  NestedKey1: "NestedValue1"
+  NestedKey2: "NestedValue2"

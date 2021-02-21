@@ -17,11 +17,12 @@ object UtilityHelper {
   protected implicit val jsonFormats: Formats = DefaultFormats
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private def numToString(day: Int): String ={
+  def numToString(day: Int): String ={
     if(day / 10 == 0) s"0$day"
     else day.toString
   }
 
+  //TODO: modify this method for fixing the test
   def getTheMonthDateJson(): String ={
     val dateToday = Calendar.getInstance.get(Calendar.DATE)
     val currentYear = Calendar.getInstance.get(Calendar.YEAR)
@@ -70,7 +71,7 @@ object UtilityHelper {
     jsonToWrite
   }
 
-  private def convertDate(date: String): String ={
+  def convertDate(date: String): String ={
     //given format will be mm/dd/yyyy convert to yyyy-mm-dd
     val dateSplit = date.split('/')
     val month = dateSplit(0)
@@ -79,10 +80,12 @@ object UtilityHelper {
     s"$year-$month-$day"
   }
 
-  private def getDatesBetweenFromAndToDate(startDate: String, endDate: String): List[AnyRef] ={
+  def getDatesBetweenFromAndToDate(startDate: String, endDate: String): List[AnyRef] ={
     val localStartDate = LocalDate.parse(startDate)
     val localEndDate   = LocalDate.parse(endDate)
-    val dates = localStartDate.datesUntil(localEndDate).collect(Collectors.toList()).toArray.toList
+    val dates = {
+      localStartDate.datesUntil(localEndDate).collect(Collectors.toList()).toArray.toList
+    }
     dates
   }
 

@@ -1,4 +1,7 @@
 package com.example.app.Controllers
+import com.example.app.Models.EmployeeName
+import com.example.app.Models.EmployeeDetails
+import com.example.app.Models.AttendanceDetails
 
 object RequestHelpers{
 
