@@ -1,0 +1,146 @@
+The Scala template uses @ as the single special character.
+Every time this character is encountered, it indicates the beginning of a dynamic statement.
+You are not required to explicitly close the code block - the end of the dynamic statement will be inferred from your code.
+
+Example :
+ @customer.name
+
+ there is no space should be given after the special character.
+
+ Hello @(customer.firstName + customer.lastName)!
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     Dynamic Code
+
+
+Note: Make sure not to include whitespaces between keywords of dynamic statements and parentheses.
+
+You can also use curly brackets, to write a multi-statement block:
+Hello @{val name = customer.firstName + customer.lastName; name}!
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             Dynamic Code
+
+Because @ is a special character, you’ll sometimes need to escape it. Do this by using @@:
+
+************************************************************************************************************************
+
+Template Params:
+@(title: String, data: List[Schedule], body: HTML)
+@(title: String)(body: Html)
+
+************************************************************************************************************************
+
+Template Constructor
+
+    By default, a template is generated as a static function that can be invoked in any context.
+    Twirl supports declaring a constructor for templates, using @this() syntax at the start of the file, before the
+    template parameters. The arguments to the constructor can be defined in the same way as the template parameters:
+
+    @this(myComponent: MyComponent)
+
+    @(customer: Customer, orders: List[Order])
+
+************************************************************************************************************************
+
+Iterating
+    <ul>
+    @for(p <- products) {
+      <li>@p.name ($@p.price)</li>
+    }
+    </ul>
+
+If-blocks
+    If-blocks are nothing special. Simply use Scala’s standard if statement:
+
+    @if(items.isEmpty) {
+      <h1>Nothing to display</h1>
+    } else {
+      <h1>@items.size items!</h1>
+    }
+
+Declaring reusable blocks
+    @display(product: Product) = {
+      @product.name ($@product.price)
+    }
+
+    <ul>
+    @for(product <- products) {
+      @display(product)
+    }
+    </ul>
+
+
+twirl view package is for declaring all the code that your template wants to
+support you should define there
+
+************************************************************************************************************************
+
+Declaring reusable values
+You can define scoped values using the defining helper:
+    @defining(user.firstName + " " + user.lastName) { fullName =>
+      <div>Hello @fullName</div>
+    }
+
+************************************************************************************************************************
+
+Import statements
+    You can import whatever you want at the beginning of your template (or sub-template):
+    @(customer: Customer, orders: List[Order])
+
+    @import utils._
+    ...
+
+************************************************************************************************************************
+
+Comments
+    You can write server side block comments in templates using @* *@:
+
+    @*********************
+    * This is a comment *
+    *********************@
+
+************************************************************************************************************************
+
+Displaying Scala types
+    Twirl typically renders values of Scala types by calling toString method on them. However, if values are wrapped
+    inside Option or collections (Seq, Array, TraversableOnce), Twirl first unwraps the values and then calls toString.
+
+    <ul>
+      <li>@Option("value inside option")</li>
+      <li>@List("first", "last")</li>
+      <li>@User("Foo", "Bar")</li>
+      <li>@List("hello", User("Foo", "Bar"), Option("value inside option"), List("first", "last"))</li>
+    </ul>
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+
+************************************************************************************************************************
+
+************************************************************************************************************************
+
+

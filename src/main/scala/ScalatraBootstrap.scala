@@ -7,5 +7,6 @@ class ScalatraBootstrap extends LifeCycle {
     // what ever resources you need to start or initialize at the time of application
     // define it here in the init method of  scalatraBootstrap
     context.mount(new MainRequestHandler, "/*")
+    context.mount(new TestRequestHandler, "/test/*")
   }
 }
